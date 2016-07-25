@@ -14,20 +14,20 @@ public class Directory
     public Directory( int maxInumber )
     {
         // directory constructor
-        fsizes = new int[maxInumber];     // maxInumber = max files
+        fsize = new int[maxInumber];     // maxInumber = max files
         for ( int i = 0; i < maxInumber; i++ )
             fsize[i] = 0;                 // all file size initialized to 0
         fnames = new char[maxInumber][maxChars];
         String root = "/";                // entry(inode) 0 is "/"
         fsize[0] = root.length( );        // fsize[0] is the size of "/".
-        root.getChars( 0, fsizes[0], fnames[0], 0 ); // fnames[0] includes "/"
+        root.getChars( 0, fsize[0], fnames[0], 0 ); // fnames[0] includes "/"
     }
 
 
     // initializes the Directory instance with this data[]
     public int bytes2directory( byte data[] )
     {
-
+        return 0;
     }
 
     // converts and return Directory information into a plain byte array
@@ -36,15 +36,15 @@ public class Directory
     // into bytes.
     public byte[] directory2bytes( )
     {
-
-
+        byte[] temp = new byte[20];
+        return temp;
     }
 
     // filename is the one of a file to be created.
     // allocates a new inode number for this filename
     public short ialloc( String filename )
     {
-
+        return 0;
     }
 
     // deallocates this inumber (inode number)
@@ -58,6 +58,7 @@ public class Directory
         }
         set fsize[iNumber] to 0;
         */
+        return true;
     }
 
     // returns the inumber corresponding to this filename
@@ -66,6 +67,6 @@ public class Directory
         /* use for loop to search the filename in the fnames,
         return the index if found it, else return -1
          */
-
+        return 0;
     }
 }
