@@ -24,7 +24,9 @@ public class FileStructureTable
 	// return a reference to this file (structure) table entry
 	public synchronized FileTableEntry falloc( String filename, String mode )
 	{
-		// Fill in
+		// Next 2 lines written just so that we can compile FileStructureTable.java
+		FileTableEntry result = new FileTableEntry(null, (short)-1, mode);
+		return result;
 	}
 
 	// receive a file table entry reference
@@ -33,7 +35,8 @@ public class FileStructureTable
 	// return true if this file table entry found in my table
 	public synchronized boolean ffree( FileTableEntry e )
 	{
-
+		// Need to fill in, next line just so that this file compiles
+		return false;
 	}
 
 	// return if table is empty
