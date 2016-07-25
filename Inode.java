@@ -19,8 +19,7 @@ public class Inode
         length = 0;
         count = 0;
         flag = 1;
-        for(int i = 0; i < directSize; i++)
-        {
+        for (int i = 0; i < directSize; i++) {
             direct[i] = -1;
             indirect = -1;
         }
@@ -35,6 +34,7 @@ public class Inode
     //save to disk as the i-th inode
     int toDisk(short iNumber)
     {
-
+        return 0;
     }
 }
+
