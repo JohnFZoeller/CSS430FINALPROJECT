@@ -27,7 +27,9 @@ public class FileSystem
         {
             byte[] dirData = new byte[dirSize];
             read( dirEnt, dirData );
-            directory.directory2bytes(dirData) ;
+            //changed this
+            dirData = directory.directory2bytes() ;
+            //end change
 
         }
         close( dirEnt);
