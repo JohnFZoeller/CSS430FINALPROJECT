@@ -201,6 +201,26 @@ public class Directory
         /* use for loop to search the filename in the fnames,
         return the index if found it, else return -1
          */
-        return 0;
+    	short result = (short) -1;
+    	int nameLength = filename.length();
+    	if(nameLength == 0 || nameLength > maxChars)
+    	{
+    		SysLib.cerr("Error in namei(Str filename): filename.length() == 0 or > maxChars \n");
+    		return result;
+    	}
+    	
+    	// Now traversing fnames[][]
+    	for(int i = 0; i < fnames.length; i++)
+    	{
+    		String currStr = new String(fnames[i], 0, fsize[i]);
+    		if(currStr.equals(filename))
+    		{
+    			result = (short) i;
+    			break;
+    		}
+    	}
+    	
+    	
+        return result;
     }
 }
