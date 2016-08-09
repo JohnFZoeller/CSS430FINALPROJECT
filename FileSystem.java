@@ -102,15 +102,13 @@ public class FileSystem{
     }
 
     //destroys the file specified by filename, return true when it's removed successfully
-    boolean delete( String  filename)
+    boolean delete( String filename)
     {
-        FileTableEntry ftEnt;
-        short i;
+        short i = directory.namei(filename);
 
-        i = directory.namei(filename);
-        directory.ifree(i);
-
-        return false;
+        if(i == -1){
+            return false;
+        } else return directory.ifree(i);
     }
 
     //read data from the file specified by the FileTableEntry into the buffer
@@ -127,16 +125,50 @@ public class FileSystem{
     }
 
     //stuff here
-    private  boolean dealloAllBlocks( FileTableEntry ftEnt)
+    private boolean dealloAllBlocks( FileTableEntry ftEnt)
     {
-        return false;
+        byte[] blocks;
+
+        if(ftEnt != NULL){
+
+
+        } else return false;
     }
 
     //update the seek pointer corresponding to fd as SEEK_SET, SEEK_CUR, SEEK_END defined above
     int seek( FileTableEntry ftEnt, int offset, int whence)
     {
-        return -1;
+        if(ftEnt == NULL)
+            return -1;
+
+        switch(whence){
+            case SEEK_SET:
+                ftEnt.seekPtr = offset;
+
+                if(ftEnt.seekPtr < 0)
+                    ftEnt.seekPtr = 0;
+                if(ftEnt.seekPtr > fsize(ftEnt))
+                    ftEnt.seekPtr = fsize(ftEnt);
+                return ftEnt.seekPtr;
+            case SEEK_CUR:
+                ftEnt.seekPtr += offset;
+
+                if(ftEnt.seekPtr < 0)
+                    ftEnt.seekPtr = 0;
+                if(ftEnt.seekPtr > fsize(ftEnt))
+                    ftEnt.seekPtr = fsize(ftEnt);
+                return ftEnt.seekPtr;
+            case SEEK_END:
+                ftEnt.seekPtr = offset + fsize(ftEnt);
+
+                if(ftEnt.seekPtr < 0)
+                    ftEnt.seekPtr = 0;
+                if(ftEnt.seekPtr > fsize(ftEnt))
+                    ftEnt.seekPtr = fsize(ftEnt);
+                return ftEnt.seekPtr;
+        }
     }
+
 }
 
 
