@@ -1,21 +1,37 @@
 /**
- * Created by Michael on 7/23/2015.
+ * CSS 430 Operation System
+ * Summer 2016
+ * Final Project
+ *
+ *
+ * FileTableEntry.java
+ *
+ * Moves INode on/off disk, and wraps into a FileTableEntry
+ *
  */
-public class FileTableEntry
-{
-    // Each table entry should have
+
+public class FileTableEntry {
+
     public int seekPtr;                 //    a file seek pointer
     public final Inode inode;           //    a reference to its inode
     public final short iNumber;         //    this inode number
     public int count;                   //    # threads sharing this entry
     public final String mode;           //    "r", "w", "w+", or "a"
-    public FileTableEntry ( Inode i, short inumber, String m )
-    {
+
+
+    // ----------------------------------- FileTableEntry ------------------------------------------
+    // Description
+    // default constructor of FileTableEntry
+    // Preconditions: passed in Inode, string is not null
+    // postcondisions: initialize FileTableEntry with passed in values
+    // ---------------------------------------------------------------------------------------------
+    public FileTableEntry ( Inode i, short inumber, String m ) {
         seekPtr = 0;             // the seek pointer is set to the file top
         inode = i;
         iNumber = inumber;
         count = 1;               // at least on thread is using this entry
         mode = m;                // once access mode is set, it never changes
+
         if ( mode.compareTo( "a" ) == 0 ) // if mode is append,
             seekPtr = inode.length;        // seekPtr points to the end of file
     }
