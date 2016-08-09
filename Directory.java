@@ -28,6 +28,11 @@ public class Directory
     // -------------------------------------------
     public Directory( int maxInumber )
     {
+    	if(maxInumber <= 0)
+    	{
+    		throw new IllegalArgumentException("Must have at least 1 file");
+    	
+    	}
         // directory constructor
         fsize = new int[maxInumber];  // maxInumber = max files
         for ( int i = 0; i < maxInumber; i++ )
@@ -162,6 +167,7 @@ public class Directory
     			
     			// Now storing filename in fnames[][] array
     			filename.getChars( 0, fsize[i], fnames[i], 0 ); 
+    			break;
     		}
     	}
         return result;
@@ -222,5 +228,23 @@ public class Directory
     	
     	
         return result;
+    }
+    
+    public void contents()
+    {
+    	int length = fsize.length;
+    	for(int i = 0; i < length; i++)
+    	{
+    		System.out.print("Inode number: " + i + ", ");
+    		if(fsize[i] == 0)
+    		{
+    			System.out.println("size = 0, no name");
+    		}
+    		else
+    		{
+    			String currName = new String(fnames[i], 0, fsize[i]);
+    			System.out.println("size = " + fsize[i] + ", name: " + currName);
+    		}
+    	}
     }
 }
