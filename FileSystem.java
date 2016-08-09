@@ -114,7 +114,40 @@ public class FileSystem{
     //read data from the file specified by the FileTableEntry into the buffer
     int read( FileTableEntry ftEnt, byte[] buffer)
     {
-        return -1;
+        byte[] readArr;
+        int bufferLength, seekPoint, size, readBlock, cur, i, total, left;
+
+        if(ftEnt == NULL || !ftEnt.mode.equals("r"))
+            return NULL;
+
+        synchronized(ftEnt){
+
+            bufferLength = buffer.length;
+            seekPoint = ftEnt.seekPtr;
+            size = fsize(ftEnt);
+            readArr = new byte[Disk.blockSize];
+            i = 0;
+
+            while(bufferLength > 0 && size > seekPoint){
+
+                readBlock = getId(ftEnt);
+                cur = seekPoint % Disk.blockSize;
+                total = Disk.blockSize - cur;
+                left = (total < (bufferLength - i)) ? total : (bufferLength - i);
+
+                if(readBlock == -1)
+                    return -1;
+
+                SysLib.rawread(readBlock, readArr);
+                System.arraycopy(readArr, cur, buffer, i, left);
+
+                ftEnt.seekPtr += left;
+                i += left; 
+                bufferLength -= left;
+
+            }
+        }
+        return i;
     }
 
     //write data from the file specified by the FileTableEntry into the buffer, additional blocks
@@ -167,6 +200,28 @@ public class FileSystem{
                     ftEnt.seekPtr = fsize(ftEnt);
                 return ftEnt.seekPtr;
         }
+    }
+
+    int getId(FileTableEntry ftEnt)
+    {
+        int pointer, pointer2, pointer3;
+        byte[] finder;
+
+        pointer = ftEnt.seekPtr / Disk.blockSize;
+
+        if(pointer < 11)
+            pointer2 = ftEnt.direct[pointer];
+        else if(ftEnt.inode.indirect == -1)
+            pointer2 = -1;
+        else if(ftEnt.inode.indirect != -1)
+        {
+            finder = new byte[Disk.blockSize];
+            SysLib.rawread(ftEnt.inode.indirect, finder);
+            pointer3 = 2 * (pointer - 11);
+            pointer2 = SysLib.bytes2short(finder, pointer3);
+        }
+
+        return pointer2;
     }
 
 }
