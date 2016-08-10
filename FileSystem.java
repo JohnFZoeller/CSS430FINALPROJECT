@@ -94,6 +94,7 @@ public class FileSystem{
 
                 if(ftEnt.count >= 1)
                     return true;
+
             }
 
             return filestructuretable.ffree(ftEnt);
@@ -123,8 +124,10 @@ public class FileSystem{
         byte[] readArr;
         int bufferLength, seekPoint, size, readBlock, cur, i, total, left;
 
-        if(ftEnt == null || !ftEnt.mode.equals("r"))
+        if(ftEnt == null || !ftEnt.mode.equals("r")){
+            SysLib.cout("Error in first if \n");
             return -1;
+        }
 
         synchronized(ftEnt){
 
@@ -134,15 +137,19 @@ public class FileSystem{
             readArr = new byte[Disk.blockSize];
             i = 0;
 
-            while(bufferLength > 0 && size > seekPoint){
+            //used to be while(bufferLength > 0 && size > seekPoint){
+
+            while(bufferLength > i){
 
                 readBlock = getId(ftEnt);
                 cur = seekPoint % Disk.blockSize;
                 total = Disk.blockSize - cur;
                 left = (total < (bufferLength - i)) ? total : (bufferLength - i);
 
-                if(readBlock == -1)
+                if(readBlock == -1){
+                    SysLib.cout("error in second if \n");
                     return -1;
+                }
 
                 SysLib.rawread(readBlock, readArr);
                 System.arraycopy(readArr, cur, buffer, i, left);
@@ -153,6 +160,8 @@ public class FileSystem{
 
             }
         }
+
+        SysLib.cout("the value of i = " + i + "\n");
         return i;
     }
 
