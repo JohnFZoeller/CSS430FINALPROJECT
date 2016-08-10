@@ -205,7 +205,7 @@ public class FileSystem{
     private boolean dealloAllBlocks( FileTableEntry ftEnt)
     {
         byte[] blocks;
-        int returning;
+        short returning;
 
         if(ftEnt == null)
             return false;
