@@ -205,10 +205,27 @@ public class FileSystem{
     private boolean dealloAllBlocks( FileTableEntry ftEnt)
     {
         byte[] blocks;
+        int returning;
 
         if(ftEnt == null)
             return false;
-        else return true;
+
+        //direct first
+        for(int i = 0; i < 11; i++){
+            if(ftEnt.inode.direct[i] != -1){
+                superblock.returnBlock(ftEnt.inode.direct[i]);
+                ftEnt.inode.direct[i] = -1;
+            }
+        }
+
+        //now indirect
+        if((blocks = clear(ftEnt)) != null){
+            while((returning = SysLib.bytes2short(blocks, 0)) != -1)
+                superblock.returnBlock(returning);
+        }
+
+        ftEnt.inode.toDisk(ftEnt.iNumber);
+        return true;
     }
 
     //update the seek pointer corresponding to fd as SEEK_SET, SEEK_CUR, SEEK_END defined above
@@ -269,6 +286,19 @@ public class FileSystem{
             pointer2 = -1;
 
         return pointer2;
+    }
+
+    byte[] clear(FileTableEntry ftEnt){
+        byte[] clearing;
+
+        if(ftEnt.inode.indirect == -1)
+            return null;
+
+        clearing = new byte[Disk.blockSize];
+        SysLib.rawread(ftEnt.inode.indirect, clearing);
+        ftEnt.inode.indirect = -1;
+
+        return clearing;
     }
 
 }
