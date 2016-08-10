@@ -86,18 +86,17 @@ public class FileSystem{
     //close the file corresponding to fd by removing the corresponding FileTableEntry
     boolean close( FileTableEntry ftEnt)
     {
-        if(ftEnt != null){
-            synchronized(ftEnt){
+        if(ftEnt == null)
+            return false;
+
+        synchronized(ftEnt){
                 ftEnt.count--;
 
                 if(ftEnt.count >= 1)
                     return true;
             }
-        } else {
-            return false;
-        }
 
-        return false;  //just for compiling
+            return filestructuretable.ffree(ftEnt);
     }
 
     //return the size in bytes of the file indicated by fd
