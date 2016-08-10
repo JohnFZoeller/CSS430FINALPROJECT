@@ -69,34 +69,41 @@ public class FileSystem{
     //a new file descriptor, and return it as FileTableEntry
     public FileTableEntry open( String fileName, String mode)
     {
-        FileTableEntry result = FileStructureTable.falloc(fileName, mode);
+        FileTableEntry result = filestructuretable.falloc(fileName, mode);
 
-        if(result == NULL)
-            return NULL;
-        else if(result != NULL && mode.equals("w")){
+        if(result == null)
+            return null;
+        else if(result != null && mode.equals("w")){
             if(dealloAllBlocks(result) == false)
-                return NULL;
+                return null;
         }
-        else return result;
+        else
+            return result;
+
+        return result; //just for compliing
     }
 
     //close the file corresponding to fd by removing the corresponding FileTableEntry
     boolean close( FileTableEntry ftEnt)
     {
-        if(ftEnt != NULL){
+        if(ftEnt != null){
             synchronized(ftEnt){
                 ftEnt.count--;
 
                 if(ftEnt.count >= 1)
                     return true;
             }
-        } else return false;
+        } else {
+            return false;
+        }
+
+        return false;  //just for compiling
     }
 
     //return the size in bytes of the file indicated by fd
     int fsize( FileTableEntry ftEnt)
     {
-        if(ftEnt != NULL)
+        if(ftEnt != null)
             return ftEnt.inode.length; 
         else return -1;
     }
@@ -117,8 +124,8 @@ public class FileSystem{
         byte[] readArr;
         int bufferLength, seekPoint, size, readBlock, cur, i, total, left;
 
-        if(ftEnt == NULL || !ftEnt.mode.equals("r"))
-            return NULL;
+        if(ftEnt == null || !ftEnt.mode.equals("r"))
+            return -1;
 
         synchronized(ftEnt){
 
@@ -142,8 +149,8 @@ public class FileSystem{
                 System.arraycopy(readArr, cur, buffer, i, left);
 
                 ftEnt.seekPtr += left;
-                i += left; 
                 bufferLength -= left;
+                i += left; 
 
             }
         }
@@ -154,7 +161,44 @@ public class FileSystem{
     // are allocated to the inode as need
     int write( FileTableEntry ftEnt, byte[] buffer)
     {
-        return -1;
+        byte[] writeArr;
+        int bufferLength, seekPoint, size, writeBlock, cur, i, total, left, newWriteBlock;
+
+        if(ftEnt == null || ftEnt.mode.equals("r"))
+            return -1;
+
+        synchronized(ftEnt){
+            bufferLength = buffer.length;
+            size = fsize(ftEnt);
+            seekPoint = ftEnt.seekPtr;
+            i = 0;
+            writeArr = new byte[Disk.blockSize];
+
+            while(i < bufferLength){
+                writeBlock = getId(ftEnt);
+                cur = seekPoint % Disk.blockSize;
+                total = Disk.blockSize - cur;
+                left = (total < bufferLength) ? total : bufferLength;  // not sure about this line
+
+
+                if(writeBlock == -1){
+                    newWriteBlock =  superblock.getFreeBlock();
+                    //should be contruct here to make sure the block is good. 
+                    writeBlock = newWriteBlock;
+                }
+
+                SysLib.rawread(writeBlock, writeArr);
+                System.arraycopy(buffer, i, writeArr, cur, left);
+                SysLib.rawwrite(writeBlock, writeArr);
+
+                ftEnt.seekPtr += left;
+                bufferLength -= left;
+                i += left;
+            }
+
+        }
+        ftEnt.inode.toDisk(ftEnt.iNumber);
+        return i;
     }
 
     //stuff here
@@ -162,16 +206,15 @@ public class FileSystem{
     {
         byte[] blocks;
 
-        if(ftEnt != NULL){
-
-
-        } else return false;
+        if(ftEnt == null)
+            return false;
+        else return true;
     }
 
     //update the seek pointer corresponding to fd as SEEK_SET, SEEK_CUR, SEEK_END defined above
     int seek( FileTableEntry ftEnt, int offset, int whence)
     {
-        if(ftEnt == NULL)
+        if(ftEnt == null)
             return -1;
 
         switch(whence){
@@ -200,8 +243,10 @@ public class FileSystem{
                     ftEnt.seekPtr = fsize(ftEnt);
                 return ftEnt.seekPtr;
         }
+        return -1; //just for compilation
     }
 
+    //pointer2 will either be -1, 
     int getId(FileTableEntry ftEnt)
     {
         int pointer, pointer2, pointer3;
@@ -210,7 +255,7 @@ public class FileSystem{
         pointer = ftEnt.seekPtr / Disk.blockSize;
 
         if(pointer < 11)
-            pointer2 = ftEnt.direct[pointer];
+            pointer2 = ftEnt.inode.direct[pointer];
         else if(ftEnt.inode.indirect == -1)
             pointer2 = -1;
         else if(ftEnt.inode.indirect != -1)
@@ -220,6 +265,8 @@ public class FileSystem{
             pointer3 = 2 * (pointer - 11);
             pointer2 = SysLib.bytes2short(finder, pointer3);
         }
+        else 
+            pointer2 = -1;
 
         return pointer2;
     }
