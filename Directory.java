@@ -55,8 +55,10 @@ public class Directory
     // --------------------------------------------
 
     // ------------- bytes2Directory(byte data[] --------
-    // Initializes the Directory instance with this data[]
-    // which is retrieved from the disk.
+    
+    /* Initializes the Directory instance with this data[]
+     * which is retrieved from the disk.
+     */
     public int bytes2directory( byte data[] )
     {
     	int offset = 0; // Starting index to read from
@@ -98,10 +100,12 @@ public class Directory
 
     // --------------- directory2bytes() -----------
     
-    // converts and return Directory information into a plain byte array
-    // this byte array will be written back to disk.
-    // note: only meaningfull directory information should be converted
-    // into bytes.
+    /* 
+     * Converts and return Directory information into a plain byte array
+     * this byte array will be written back to disk.
+     * note: only meaningfull directory information should be converted
+     * into bytes.
+     */
     public byte[] directory2bytes( )
     {
     	int intBytes = fsize.length * 4;
@@ -136,8 +140,10 @@ public class Directory
 
     // ------------- ialloc(String filename) -------------
     
-    // Filename is the one of a file to be created.
-    // allocates a new inode number for this filename.
+    /*
+     * Filename is the one of a file to be created.
+     * allocates a new inode number for this filename.
+     */
     public short ialloc( String filename )
     {
     	short result = (short) -1;
@@ -175,8 +181,10 @@ public class Directory
 
     // ------------- ifree(short iNumber) --------------
     
-    // deallocates this inumber (inode number)
-    // the corresponding file will be deleted.
+    /*
+     * Deallocates this inumber (inode number).
+     * The corresponding file will be deleted.
+     */
     public boolean ifree( short iNumber )
     {
     	short lowest = (short) 1; // Cannot deallocate root directory
@@ -201,7 +209,9 @@ public class Directory
 
     // -------------- namei(String filename) --------------
     
-    // returns the inumber corresponding to this filename
+    /*
+     * Returns the inumber corresponding to this filename
+     */
     public short namei( String filename )
     {
         /* use for loop to search the filename in the fnames,
@@ -230,6 +240,9 @@ public class Directory
         return result;
     }
     
+    /*
+     * Displays contents
+     */
     public void contents()
     {
     	int length = fsize.length;
