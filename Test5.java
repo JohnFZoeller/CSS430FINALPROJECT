@@ -54,7 +54,7 @@ class Test5 extends Thread {
       SysLib.cout("Correct behavior of creating over 40 files ...0.5\n");
     if ( test18( ) ) // "uwb1" read/written among Test5 and Test6
       SysLib.cout("Correct behavior of two fds to the same file..0.5\n");
-  
+
     SysLib.cout( "Test completed\n" );
     SysLib.exit( );
   }
@@ -245,7 +245,7 @@ class Test5 extends Thread {
     fd = SysLib.open( "css430", "w+" );
     SysLib.seek( fd, 24, 0 );
     SysLib.write( fd, buf24 );
-  
+
     SysLib.seek( fd, 0, 0 );
     byte[] tmpBuf = new byte[48];
     SysLib.read( fd, tmpBuf );
@@ -269,10 +269,10 @@ class Test5 extends Thread {
         return false;
       }
 
-      SysLib.close( fd );
-      SysLib.cout( "successfully completed\n" );
-      return true;
-    }
+    SysLib.close( fd );
+    SysLib.cout( "successfully completed\n" );
+    return true;
+  }
 
   //final byte[] buf8192 = new byte[8192];
   final byte[] buf6656 = new byte[6656];
@@ -360,7 +360,7 @@ class Test5 extends Thread {
     for ( int i = 0; i < 6656; i++ ) {
       if ( tmpBuf[i] != buf6656[i] ) {
         SysLib.cout( "buf[" + i + "] = " + tmpBuf[i] + " buf6656 = " +
-           buf6656[i] + "\n" );
+                buf6656[i] + "\n" );
         SysLib.close( fd );
         return false;
       }
@@ -368,7 +368,7 @@ class Test5 extends Thread {
     for ( int i = 6656; i < 6688; i++ )
       if ( tmpBuf[i] != buf32[i - 6656] ) {
         SysLib.cout( "buf[" + i + "] = " + tmpBuf[i] + " buf32 = " +
-           buf32[i - 6656] + "\n" );
+                buf32[i - 6656] + "\n" );
         SysLib.close( fd );
         return false;
       }
@@ -439,7 +439,7 @@ class Test5 extends Thread {
     fd = SysLib.open( "bothell", "w+" );
     SysLib.seek( fd, 512 * 12 - 3, 0 );
     SysLib.write( fd, buf24 );
-  
+
     SysLib.seek( fd, 0, 0 );
     byte[] tmpBuf = new byte[6688];
     SysLib.read( fd, tmpBuf );
@@ -541,7 +541,7 @@ class Test5 extends Thread {
     for ( int i = 0; i < 512; i++ )
       if ( tmpBuf[i] != (byte)100 ) {
         SysLib.cout( "tmpBuf[" + i + "]=" + tmpBuf[i] + " should be 100"
-           + "\n" );
+                + "\n" );
         SysLib.close( fd );
         return false;
       }
