@@ -86,6 +86,7 @@ public class Directory
         		// 2 Bytes, hence maxChars * 2.
         		String fileName = new String(data, offset, maxChars * 2);
         		fileName.getChars(0, fsize[k], fnames[k], 0);
+        		offset = offset + (maxChars * 2);
         	}
     	}
     	catch(ArrayIndexOutOfBoundsException e)
