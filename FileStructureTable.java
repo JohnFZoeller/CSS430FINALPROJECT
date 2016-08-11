@@ -52,10 +52,11 @@ public class FileStructureTable
 			{
 				//the file is not exists because the iNumber is negative
 				iNumber = dir.ialloc(filename);
-				inode = new Inode();
+				inode = new Inode(iNumber);
+				inode.flag = inode.WRITE;
 				break;
 			}
-			else //the iNumber is positive file exits
+			else //the iNumber is positive file exists
 			{
 				inode = new Inode(iNumber);
 				if (mode.equals("r"))
@@ -113,23 +114,48 @@ public class FileStructureTable
 	}
 
 	//-------------------------ffree(FileTableEntry e)-------------------------
-
-	// receive a file table entry reference
-	// save the corresponding inode to the disk
 	// free this file table entry.
 	// return true if this file table entry found in my table
 	public synchronized boolean ffree( FileTableEntry e )
 	{
-		if(table.removeElement(e))
-		{
-			//if remove successfully, count --
-			e.inode.count--;
-			if (e.inode.flag == Inode.READ || e.inode.flag == Inode.WRITE)
-			{
-				notify();
+//		if(table.removeElement(e))
+//		{
+//			//if remove successfully, count --
+//			e.inode.count--;
+//			if (e.inode.flag == Inode.READ || e.inode.flag == Inode.WRITE)
+//			{
+//				notify();  //wake up other waiting threads
+//			}
+//			e.inode.toDisk(e.iNumber); // save inode into the disk
+//			return true; //return true when the file table entry is found
+//		}
+//		return false;
+
+		Inode inode = new Inode(e.iNumber);
+		// try to remove the given FileTableEntry, if it is in the table,
+		// the remove methods will return true
+		if (table.remove(e)) {
+			if (inode.flag == inode.READ) {
+				// if there is only one reader, set the flag to used (no more
+				// users read that file) and wake up one thread(user)
+				if (inode.count == 1) {
+					notify();
+					inode.flag = inode.USED;
+				}
+
+			} else if (inode.flag == inode.WRITE) {
+				// set the flag to used
+				inode.flag = inode.USED;
+				// wake up all threads (users) waiting for that file since
+				// there might be threads waiting for a reading which can
+				// execute in concurent mode.
+				notifyAll();
 			}
-			e.inode.toDisk(e.iNumber); // save inode into the disk
-			return true; //return true when the file table entry is found
+
+			// decrease the number of users of that file about one
+			inode.count--;
+			inode.toDisk(e.iNumber);
+			return true;
 		}
 		return false;
 	}

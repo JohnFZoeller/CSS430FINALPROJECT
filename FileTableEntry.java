@@ -1,14 +1,14 @@
-/**
- * CSS 430 Operation System
- * Summer 2016
- * Final Project
- *
- *
- * FileTableEntry.java
- *
- * Moves INode on/off disk, and wraps into a FileTableEntry
- *
- */
+
+/* CSS 430 Operation System
+        * Summer 2016
+        * Final Project
+        *
+        *
+        * FileTableEntry.java
+        *
+        * Moves INode on/off disk, and wraps into a FileTableEntry
+        *
+        */
 
 public class FileTableEntry {
 
@@ -25,7 +25,7 @@ public class FileTableEntry {
     // Preconditions: passed in Inode, string is not null
     // postcondisions: initialize FileTableEntry with passed in values
     // ---------------------------------------------------------------------------------------------
-    public FileTableEntry ( Inode i, short inumber, String m ) {
+    public FileTableEntry (Inode i, short inumber, String m ) {
         seekPtr = 0;             // the seek pointer is set to the file top
         inode = i;
         iNumber = inumber;
