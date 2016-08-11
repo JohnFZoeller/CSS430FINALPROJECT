@@ -1,6 +1,4 @@
 /**
- * Created by Michael on 7/23/2015.
- * Modified by Fengjuan Qiu 08/07/2016
  *
  * Represents an inode in memory, maintaining pointers to all the blocks
  * that hold the file's data.
@@ -14,7 +12,7 @@ public class Inode
     public int length;                        // file size in bytes
     public short count;                       // # file-table entries pointing to this
     public short flag;                        // 0 = unused, 1 = used
-    public short direct[] = new short[directSize]; // direct pointers
+    public short direct[] = new short[directSize];     // direct pointers
     public short indirect;                     // a indirect pointer
 
 
@@ -42,7 +40,6 @@ public class Inode
     //Methods
 
     //---------------------------Inode(short iNumber)--------------------------
-
     //retrieve iNode from disk
     Inode(short iNumber)
     {
@@ -53,15 +50,11 @@ public class Inode
 
         int offset = (iNumber % 16) * inodeSize;
 
-        System.out.println("offset is: " + offset);
-
         length = SysLib.bytes2int( data, offset);
         offset += 4;
 
-        System.out.println("length is:" + length);
         count = SysLib.bytes2short(data, offset);
 
-        System.out.println("count is: " + count);
         offset += 2;
         flag = SysLib.bytes2short(data, offset);
         offset += 2;
@@ -75,13 +68,13 @@ public class Inode
 
 
     //-----------------------------toDisk(short Inumber)-----------------------
-
     //save to disk as the i-th inode
     void toDisk(short iNumber)
     {
         int blkNumber = (iNumber / 16) + 1;
-        //read the whole block from the disk
+
         byte[] data = new byte[Disk.blockSize];
+
         SysLib.rawread(blkNumber, data);
         int offset = 0;
         SysLib.int2bytes(length, data, iNumber * inodeSize + offset);
@@ -100,35 +93,45 @@ public class Inode
 
     }
 
-    public boolean setNextBlockNumber(short blockNumber) {
-        //Check direct first
-        for (int i = 0; i < directSize; i++) {
-            if (direct[i] <= 0) {
-                direct[i] = blockNumber;
+    //-----------------------------setNextBlockNumber()----------------------
+    //
+    public boolean setNextBlockNumber(short blkNumber)
+    {
+        //Checking direct blocks
+        for (int i = 0; i < directSize; i++)
+        {
+            if (direct[i] <= 0)
+            {
+                direct[i] = blkNumber;
                 return true;
             }
         }
-        //Check indirect
-        byte[] indirect_block = readIndirectBlock();
-        for(short offset_in_indirect = 0; offset_in_indirect < indirectSize *2;
-            offset_in_indirect += 2) {
-            //The next free indirect will be -1
-            if (SysLib.bytes2short(indirect_block, offset_in_indirect) <= 0) {
+        //Checking indirect blocks
+        byte[] indirectBlk = readIndirectBlk();
+        for(short offsetIndirect = 0;
+            offsetIndirect < indirectSize *2; offsetIndirect += 2)
+        {
+
+            if (SysLib.bytes2short(indirectBlk, offsetIndirect) <= 0)
+            {
                 //write the block number to the byte array
-                SysLib.short2bytes(blockNumber, indirect_block,
-                        offset_in_indirect);
-                //write the block back to disk return success condition on disk
-                return SysLib.rawwrite(indirect, indirect_block) != -1;
+                SysLib.short2bytes(blkNumber, indirectBlk, offsetIndirect);
+
+                //write the block back to disk and return true when it's successfuly
+                return SysLib.rawwrite(indirect, indirectBlk) != -1;
             }
         }
         return false;
     }
 
-    private byte[] readIndirectBlock() {
-        byte[] indirect_block = new byte[Disk.blockSize];
-        //read the entire indirect block
-        SysLib.rawread(indirect, indirect_block);
-        return indirect_block;
+    //-----------------------------readIndirectBlock()-----------------------
+    //read indirect block
+    public byte[] readIndirectBlk()
+    {
+        byte[] indirectBlk = new byte[Disk.blockSize];
+
+        SysLib.rawread(indirect, indirectBlk);
+        return indirectBlk;
     }
 }
 

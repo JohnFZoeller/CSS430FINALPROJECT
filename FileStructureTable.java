@@ -1,15 +1,17 @@
-import java.util.*;
 /*
- * Modified by Fengjuan Qiu 08/07/2016
+ *
  * the file system maintains the file(structure) table shared among all user threads
  * It represents the set of file table entries.
 */
+import java.util.*;
+
 public class FileStructureTable
 {
 
 	// Private fields
 	private Vector<FileTableEntry> table; // the actual entity of this file table
 	private Directory dir;        // the root directory
+
 
 	//------------------------FileTable(Directory directory)-------------------
 
@@ -34,53 +36,66 @@ public class FileStructureTable
 	{
 		short iNumber = -1;
 		Inode inode = null; //initilzes a inode to null
+
 		while(true)
 		{
-			iNumber = (filename.equals("/") ? 0 : dir.namei(filename));
+			if(filename.equals("/"))
+			{
+				iNumber = 0;
+			}
+			else
+			{
+				iNumber = dir.namei(filename);
+			}
+
 			if (iNumber < 0)
 			{
 				//the file is not exists because the iNumber is negative
-				inode = new Inode();
 				iNumber = dir.ialloc(filename);
+				inode = new Inode();
 				break;
-			} else //the iNumber is positive file exits
+			}
+			else //the iNumber is positive file exits
 			{
 				inode = new Inode(iNumber);
 				if (mode.equals("r"))
 				{
-					if (inode.flag == 0 || inode.flag == 1 || inode.flag == 2)
+					if (inode.flag == inode.UNUSED || inode.flag == inode.USED || inode.flag == inode.READ)
 					{
-						inode.flag = 2;
+						inode.flag = inode.READ; //set the flag to r mode
 						break;
-					} else if (inode.flag == 3)
+					}
+					else if (inode.flag == inode.WRITE)
 					{
-						try
-						{
-							wait();
-						}
-						catch (InterruptedException e) {}
+//						try
+//						{
+//							wait();
+//						}
+//						catch (InterruptedException e) {}
 						break;
-					} else if (inode.flag == 4)
+					} else if (inode.flag == inode.DELETE)
 					{
 						iNumber = -1;
 						return null;
 					}
-				} else
+				}
+				else
 				{
-					if (inode.flag == 0 || inode.flag == 1)
+					if (inode.flag == inode.UNUSED || inode.flag == inode.USED)
 					{
-						inode.flag = 3;
+						inode.flag = inode.WRITE;
 						break;
 					}
-					else if (inode.flag == 3 || inode.flag == 2)
+					else if (inode.flag == inode.WRITE || inode.flag == inode.READ)
 					{
-						try
-						{
-							wait();
-						}
-						catch (InterruptedException e) {}
+//						try
+//						{
+//							wait();
+//						}
+//						catch (InterruptedException e) {}
 						break;
-					} else if (inode.flag == 4)
+					}
+					else if (inode.flag == inode.DELETE)
 					{
 						iNumber = -1;
 						return null;
@@ -88,6 +103,7 @@ public class FileStructureTable
 				}
 			}
 		}
+
 		inode.count++;  //increment inode's count
 		inode.toDisk(iNumber); //write this inode back to the disk
 		FileTableEntry e = new FileTableEntry(inode, iNumber, mode);
@@ -108,7 +124,7 @@ public class FileStructureTable
 		{
 			//if remove successfully, count --
 			e.inode.count--;
-			if (e.inode.flag == 2 || e.inode.flag == 3)
+			if (e.inode.flag == Inode.READ || e.inode.flag == Inode.WRITE)
 			{
 				notify();
 			}
@@ -127,4 +143,4 @@ public class FileStructureTable
 		return table.isEmpty( ); //return true when the table is empty
 	}
 
-} // End of FileStructureTable class}
+}
