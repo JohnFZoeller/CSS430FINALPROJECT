@@ -5,7 +5,7 @@
 */
 public class FileSystem{
 
-	private SuperBlock superblock;
+	private Superblock superblock;
 	private Directory directory;
 	private FileStructureTable filestructuretable;
 
@@ -19,7 +19,7 @@ public class FileSystem{
 	public FileSystem(int diskBlocks)
 	{
 		//create superblock, and format disk with 64 inodes in default
-		superblock = new SuperBlock( diskBlocks );
+		superblock = new Superblock( diskBlocks );
 
 		//create direcotry, and register "/" in directory entry 0
 		directory = new Directory( superblock.totalInodes);
@@ -104,7 +104,7 @@ public class FileSystem{
 		if (newFile)
 		{
 			//assign a direct block to it
-			short directBlock = superblock.getFreeBlock();
+			short directBlock = (short) superblock.getFreeBlock();
 			if (directBlock == -1)
 			{
 				return null; //Not enough space for a direct block
